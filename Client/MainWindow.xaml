@@ -15,10 +15,14 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="2*"/>
         </Grid.RowDefinitions>
-        <ComboBox x:Name="combobox" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+        <ComboBox x:Name="combobox" FontSize="20" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
   Style="{StaticResource MaterialDesignOutlinedComboBox}"
-  Width="256">
+  Width="256" SelectionChanged="combobox_SelectionChanged">
         </ComboBox>
+
+        <TextBox x:Name="tbTxt" Grid.Row="1" Width="250" Height="30" VerticalAlignment="Top" Margin="20" IsEnabled="False" Style="{Binding Car.Id}" FontSize="20">
+            
+        </TextBox>
 
         <Button Grid.Column="1" Width="200" Height="40" FontSize="20" Click="Button_Click">REQUEST</Button>
 

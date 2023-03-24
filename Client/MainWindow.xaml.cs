@@ -22,6 +22,7 @@ namespace Client;
 
 public partial class MainWindow : Window
 {
+    public Car Car { get; set; }
     TcpClient tcpClient;
     BinaryWriter bw;
     BinaryReader br;
@@ -50,8 +51,10 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (combobox.SelectedItem is HttpMethods method)
+        if (combobox.SelectedItem is HttpMethods method) { 
             ExecuteServerCommand(method);
+            combobox.SelectedItem = null;
+        }
     }
 
     private async void ExecuteServerCommand(HttpMethods method)
@@ -63,7 +66,37 @@ public partial class MainWindow : Window
         switch (method)
         {
             case HttpMethods.GET:
-                break;
+                {
+                    //Car car2 = new Car
+                    //{
+                    //    Id = 1,
+                    //    Make = "Make",
+                    //    Model = "Model",
+                    //    Color = "Color",
+                    //    VIN = "VIN",
+                    //    Year = 2003
+                    //};
+                    var Car = new Car();
+                    Car.Id = int.Parse(tbTxt.Text);
+
+                    Command command = new Command()
+                    {
+                        Method = HttpMethods.GET,
+                        Car = Car
+                    };
+
+                    string jsonString = JsonSerializer.Serialize(command);
+                    bw.Write(jsonString);
+
+                    var jsonResponse = br.ReadString();
+                    var car = JsonSerializer.Deserialize<Car>(jsonResponse);
+                    if (car is not null)
+                    {
+                        GetCar getCar = new GetCar(car);
+                        getCar.ShowDialog();
+                    }
+                    break;
+                }
             case HttpMethods.POST:
                 {
                     MessageBox.Show("POST");
@@ -79,13 +112,22 @@ public partial class MainWindow : Window
                     string jsonString = JsonSerializer.Serialize(command);
                     bw.Write(jsonString);
 
-                    MessageBox.Show(br.ReadBoolean()?"Added Successfully":"Error Ocurred");
+                    MessageBox.Show(br.ReadBoolean() ? "Added Successfully" : "Error Ocurred");
                     break;
                 }
             case HttpMethods.PUT:
                 break;
             case HttpMethods.DELETE:
                 break;
+        }
+    }
+
+    private void combobox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ComboBox cb)
+        {
+            if (cb.SelectedItem is HttpMethods method && (method == HttpMethods.GET || method == HttpMethods.DELETE))
+                tbTxt.IsEnabled = true;
         }
     }
 }

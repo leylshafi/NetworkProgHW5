@@ -6,7 +6,7 @@ using Server.Models;
 using System;
 
 List<Car> cars = new List<Car>();
-
+int id = 0;
 
 var ip = IPAddress.Parse("127.0.0.1");
 var port = 27001;
@@ -36,10 +36,21 @@ while (true)
         switch (command.Method)
         {
             case HttpMethods.GET:
-                break;
+                {
+                    if (command.Car is not null)
+                    {
+                        int idCar = command.Car.Id;
+                        var jsonResponse = JsonSerializer.Serialize(GetById(idCar));
+                        bw.Write(jsonResponse);
+                    }
+                    break;
+                }
             case HttpMethods.POST:
                 if (command.Car is not null)
+                {
+                    command.Car.Id = ++id;
                     bw.Write(Add(command.Car));
+                }
                 else bw.Write(false);
                 break;
             case HttpMethods.PUT:
@@ -77,7 +88,15 @@ bool Delete(int id)
 
 Car? GetById(int id)
 {
-    return cars[id];
+    foreach (var car in cars)
+    {
+        if (car.Id == id)
+        {
+            return car;
+        }
+        else return new Car();
+    }
+    return new Car();
 }
 
 List<Car>? GetAll()
