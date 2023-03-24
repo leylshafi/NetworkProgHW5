@@ -6,7 +6,14 @@ using Server.Models;
 using System;
 
 List<Car> cars = new List<Car>();
-int id = 0;
+
+
+if (File.Exists(@"..\..\..\FakeData.json"))
+{
+    var fakeCars = JsonSerializer.Deserialize<List<Car>>(File.ReadAllText(@"..\..\..\FakeData.json"))!;
+    cars= fakeCars;
+}
+int id = cars.Count;
 
 var ip = IPAddress.Parse("127.0.0.1");
 var port = 27001;
@@ -40,8 +47,14 @@ while (true)
                     if (command.Car is not null)
                     {
                         int idCar = command.Car.Id;
-                        var jsonResponse = JsonSerializer.Serialize(GetById(idCar));
-                        bw.Write(jsonResponse);
+                        Console.WriteLine(idCar);
+                        var gettedCar = GetById(idCar);
+                        if (gettedCar != null)
+                        {
+                            var jsonResponse = JsonSerializer.Serialize(gettedCar);
+                            bw.Write(jsonResponse);
+                        }
+                        else bw.Write(JsonSerializer.Serialize(new Car()));
                     }
                     break;
                 }
@@ -50,12 +63,20 @@ while (true)
                 {
                     command.Car.Id = ++id;
                     bw.Write(Add(command.Car));
+                    Console.WriteLine(cars.Count.ToString());
                 }
                 else bw.Write(false);
                 break;
             case HttpMethods.PUT:
                 break;
             case HttpMethods.DELETE:
+                if (command.Car is not null)
+                {
+                    int idCar = command.Car.Id;
+                    var jsonResponse = JsonSerializer.Serialize(Delete(idCar));
+                    bw.Write(jsonResponse);
+                }
+                else bw.Write(false);
                 break;
             default:
                 break;
@@ -78,25 +99,32 @@ bool Add(Car car)
 
 bool Delete(int id)
 {
-    if (cars[id] is not null)
+    if (cars.Count > 0)
     {
-        cars.RemoveAt(id);
-        return true;
+        foreach (var car in cars)
+        {
+            if (car.Id == id)
+            {
+                cars.Remove(car);
+                return true;
+            }
+        }
+        return false;
     }
     return false;
 }
 
 Car? GetById(int id)
 {
-    foreach (var car in cars)
+    if (cars.Count > 0)
     {
-        if (car.Id == id)
+        foreach (var car in cars)
         {
-            return car;
+            if (car.Id == id)
+                return car;
         }
-        else return new Car();
     }
-    return new Car();
+    return null;
 }
 
 List<Car>? GetAll()

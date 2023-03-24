@@ -51,7 +51,8 @@ public partial class MainWindow : Window
             return;
         }
 
-        if (combobox.SelectedItem is HttpMethods method) { 
+        if (combobox.SelectedItem is HttpMethods method)
+        {
             ExecuteServerCommand(method);
             combobox.SelectedItem = null;
         }
@@ -67,33 +68,36 @@ public partial class MainWindow : Window
         {
             case HttpMethods.GET:
                 {
-                    //Car car2 = new Car
-                    //{
-                    //    Id = 1,
-                    //    Make = "Make",
-                    //    Model = "Model",
-                    //    Color = "Color",
-                    //    VIN = "VIN",
-                    //    Year = 2003
-                    //};
-                    var Car = new Car();
-                    Car.Id = int.Parse(tbTxt.Text);
-
-                    Command command = new Command()
+                    if (tbTxt.Text is not null)
                     {
-                        Method = HttpMethods.GET,
-                        Car = Car
-                    };
 
-                    string jsonString = JsonSerializer.Serialize(command);
-                    bw.Write(jsonString);
+                        var Car = new Car();
+                        Car.Id = int.Parse(tbTxt.Text);
 
-                    var jsonResponse = br.ReadString();
-                    var car = JsonSerializer.Deserialize<Car>(jsonResponse);
-                    if (car is not null)
-                    {
-                        GetCar getCar = new GetCar(car);
-                        getCar.ShowDialog();
+                        Command command = new Command()
+                        {
+                            Method = HttpMethods.GET,
+                            Car = Car
+                        };
+
+                        string jsonString = JsonSerializer.Serialize(command);
+                        bw.Write(jsonString);
+
+                        var jsonResponse = br.ReadString();
+                        var car = JsonSerializer.Deserialize<Car>(jsonResponse);
+                        if (car is not null && car.Make is not null && car.Make.Length>0)
+                        {
+                            GetCar getCar = new GetCar(car);
+                            getCar.ShowDialog();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Car couldn't find");
+                            
+                        }
+
+                        tbTxt.IsEnabled= false;
+                        tbTxt.Text=string.Empty;
                     }
                     break;
                 }
@@ -118,7 +122,30 @@ public partial class MainWindow : Window
             case HttpMethods.PUT:
                 break;
             case HttpMethods.DELETE:
-                break;
+                {
+                    if (tbTxt.Text is not null)
+                    {
+                        var Car = new Car();
+                        Car.Id = int.Parse(tbTxt.Text);
+
+                        Command command = new Command()
+                        {
+                            Method = HttpMethods.DELETE,
+                            Car = Car
+                        };
+
+                        string jsonString = JsonSerializer.Serialize(command);
+                        bw.Write(jsonString);
+                        bool isDeleted = br.ReadBoolean();
+                        MessageBox.Show(isDeleted ? "Deleted Successfully" : "Error Ocurred");
+
+                        tbTxt.IsEnabled= false;
+                        tbTxt.Text = string.Empty;
+                       
+                    }
+
+                    break;
+                }
         }
     }
 
