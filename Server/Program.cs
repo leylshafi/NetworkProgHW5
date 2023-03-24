@@ -68,8 +68,28 @@ while (true)
                 else bw.Write(false);
                 break;
             case HttpMethods.PUT:
+                Console.WriteLine(command.Car.Id);
+                for (int i = 0; i < cars.Count; i++)
+                {
+                    if (cars[i].Id == command.Car.Id)
+                    {
+
+                        cars[i].Model = command.Car.Model;
+                        cars[i].Make = command.Car.Make;
+                        cars[i].VIN = command.Car.VIN;
+                        cars[i].Color = command.Car.Color;
+                        cars[i].Year = command.Car.Year;
+
+                        bw.Write(true);
+                        break;
+                    }
+                }
+                bw.Write(false);
+
+                Console.WriteLine(cars[0].Model);
                 break;
             case HttpMethods.DELETE:
+                Console.WriteLine(cars[0].Model);
                 if (command.Car is not null)
                 {
                     int idCar = command.Car.Id;

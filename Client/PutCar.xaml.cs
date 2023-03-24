@@ -15,19 +15,28 @@ using System.Windows.Shapes;
 
 namespace Client;
 
-public partial class GetCar : Window
+public partial class PutCar : Window
 {
     public Car Car { get; set; }
-    public GetCar(Car car)
+    public PutCar(Car car)
     {
         InitializeComponent();
-        DataContext= this;
+        DataContext = this;
         Car = car;
-
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
+        Car = new Car
+        {
+            Model = modelTxt.Text,
+            Make = makeTxt.Text,
+            Year = ushort.Parse(yearTxt.Text),
+            VIN = vinTxt.Text,
+            Color = colorTxt.Text
+        };
+
+
         DialogResult = true;
     }
 }

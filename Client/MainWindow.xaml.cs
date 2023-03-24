@@ -84,6 +84,7 @@ public partial class MainWindow : Window
                         bw.Write(jsonString);
 
                         var jsonResponse = br.ReadString();
+
                         var car = JsonSerializer.Deserialize<Car>(jsonResponse);
                         if (car is not null && car.Make is not null && car.Make.Length>0)
                         {
@@ -120,11 +121,48 @@ public partial class MainWindow : Window
                     break;
                 }
             case HttpMethods.PUT:
-                break;
-            case HttpMethods.DELETE:
                 {
                     if (tbTxt.Text is not null)
                     {
+                        var Car = new Car();
+                        Car.Id = int.Parse(tbTxt.Text);
+
+                        Command command = new Command()
+                        {
+                            Method = HttpMethods.GET,
+                            Car = Car
+                        };
+
+                        string jsonString = JsonSerializer.Serialize(command);
+                        bw.Write(jsonString);
+
+                        var jsonResponse = br.ReadString();
+                        var car = JsonSerializer.Deserialize<Car>(jsonResponse);
+
+                        PutCar putCar = new PutCar(car);
+                        putCar.ShowDialog();
+
+
+                        Command commandPut = new Command()
+                        {
+                            Method = HttpMethods.PUT,
+                            Car = putCar.Car
+                        };
+
+                        string jsonStringPut = JsonSerializer.Serialize(commandPut);
+                        bw.Write(jsonStringPut);
+
+                        MessageBox.Show(br.ReadBoolean() ? "Put Successfully" : "Error Ocurred");
+                        bw.Flush();
+                       
+                    }
+
+                    break;
+                }      
+            case HttpMethods.DELETE:
+                {
+                    if (tbTxt.Text is not null)
+                    { 
                         var Car = new Car();
                         Car.Id = int.Parse(tbTxt.Text);
 
@@ -153,7 +191,7 @@ public partial class MainWindow : Window
     {
         if (sender is ComboBox cb)
         {
-            if (cb.SelectedItem is HttpMethods method && (method == HttpMethods.GET || method == HttpMethods.DELETE))
+            if (cb.SelectedItem is HttpMethods method && (method == HttpMethods.GET || method == HttpMethods.DELETE || method == HttpMethods.PUT))
                 tbTxt.IsEnabled = true;
         }
     }
